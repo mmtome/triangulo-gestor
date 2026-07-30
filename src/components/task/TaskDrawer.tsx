@@ -74,7 +74,7 @@ type DrawerTask = {
   }[];
   blockedBy: { blockingId: string; blocking: { id: string; title: string; completed: boolean } }[];
   comments: { id: string; body: string; createdAt: string; author: Person }[];
-  activities: { id: string; type: string; meta: string | null; createdAt: string; actor: Person }[];
+  activities: { id: string; type: string; meta: unknown; createdAt: string; actor: Person }[];
   attachments: { id: string; fileName: string; isImage: boolean; storageKey: string }[];
 };
 

@@ -11,10 +11,15 @@ e nasce já carregado com o **Planejamento de Conteúdo do Instagram — ciclo 1
 
 ## Rodando
 
+O banco é **PostgreSQL (Neon)** — o mesmo em dev e em produção. O Prisma aceita
+um provider por schema, então manter SQLite local e Postgres em produção faria
+os dois divergirem.
+
 ```bash
 npm install
-npm run setup      # migration + prisma generate + seed
-npm run dev        # http://localhost:3000
+vercel env pull .env    # traz DATABASE_URL, DATABASE_URL_UNPOOLED e AUTH_SECRET
+npm run db:seed         # opcional: recria os dados de exemplo
+npm run dev             # http://localhost:3000
 ```
 
 **Acessos criados pelo seed** (senha `triangulo` para todos):
@@ -86,8 +91,10 @@ O símbolo isométrico oficial está inline em
 | Camada | Escolha |
 |---|---|
 | Framework | Next.js 16 (App Router, Turbopack) + TypeScript |
-| Banco | SQLite em dev · PostgreSQL em produção (ver abaixo) |
+| Banco | PostgreSQL no Neon, com `directUrl` para as migrations |
 | ORM | Prisma 6 |
+| Hospedagem | Vercel — deploy automático a cada push na `main` |
+| Anexos | Vercel Blob em produção, disco local em dev |
 | Auth | Sessão JWT própria (`jose` + `bcryptjs`), cookie httpOnly de 30 dias |
 | UI | Tailwind CSS v4 + lucide-react |
 | Mutações | Server Actions com validação Zod |
@@ -139,17 +146,33 @@ barato de manter.
 
 ## Banco de dados
 
-O app roda em **SQLite** para não exigir infraestrutura. O SQLite não tem `enum`
-nem `Json` nativos, então:
+**PostgreSQL no Neon**, provisionado pelo marketplace da Vercel. O schema é o da
+seção 4 da spec sem concessões: `enum` e `Json` nativos.
 
-| Spec | Aqui | Compensação |
-|---|---|---|
-| `enum` | `String` | uniões de string em `src/lib/enums.ts`, validadas por Zod |
-| `Json` | `String` | `JSON.stringify` em `ViewPreference.filters` e `ActivityLog.meta` |
+O Neon entrega duas connection strings e as duas importam:
 
-O schema de produção idêntico à spec, com enums e Json de verdade, está em
-[`prisma/schema.postgres.prisma`](prisma/schema.postgres.prisma) — o cabeçalho do
-arquivo traz o passo a passo da migração (5 passos, ~15 minutos).
+| Variável | Uso |
+|---|---|
+| `DATABASE_URL` | conexão agrupada (pooled) — é o que a aplicação usa |
+| `DATABASE_URL_UNPOOLED` | conexão direta — é o `directUrl` das migrations |
+
+Migrations pelo pooler falham de forma intermitente, por isso o `directUrl` no
+`datasource`. As duas variáveis vêm prontas do `vercel env pull`.
+
+Os parsers de `ViewPreference.filters` e `ActivityLog.meta` aceitam objeto **ou**
+string. A tolerância é herança da fase SQLite e vale manter: registros gravados
+antes da migração continuam legíveis.
+
+### Anexos
+
+Sem disco persistente em serverless, o backend de storage é escolhido em runtime
+(`src/lib/storage.ts`):
+
+- `BLOB_READ_WRITE_TOKEN` presente → **Vercel Blob**
+- ausente → `./uploads` no disco local (dev e VPS)
+
+Para habilitar anexos em produção, crie um Blob store no painel da Vercel
+(*Storage › Blob*); o token é injetado automaticamente e nada no código muda.
 
 ---
 
@@ -208,13 +231,29 @@ e o painel com widgets configuráveis — o painel atual tem 4 cartões fixos e
 
 ## Deploy
 
-Para 5 usuários internos, um VPS de ~US$6/mês resolve:
+Hospedado na **Vercel**, ligado a este repositório: todo push na `main` publica.
+
+Variáveis já configuradas no projeto:
+
+| Variável | Origem |
+|---|---|
+| `DATABASE_URL`, `DATABASE_URL_UNPOOLED` | integração Neon |
+| `AUTH_SECRET` | gerado com `crypto.randomBytes(32)` |
+| `BLOB_READ_WRITE_TOKEN` | opcional — crie um Blob store para habilitar anexos |
+
+O `build` roda `prisma generate` antes do `next build`, então o client é gerado
+com o schema atual a cada deploy.
+
+**Migrations não rodam sozinhas no deploy** — de propósito. Aplicar mudança de
+schema durante o build de um projeto compartilhado é uma boa forma de derrubar
+produção no meio de um deploy. O fluxo é aplicar antes, com o banco à mão:
 
 ```bash
-npm run build
-npm start
+npx prisma migrate deploy
 ```
 
-Em produção: migrar para PostgreSQL (acima), trocar `AUTH_SECRET` no `.env` por
-um valor gerado (`openssl rand -base64 32`) e montar um volume persistente em
-`./uploads` — os anexos são gravados em disco.
+### Alternativa self-hosted
+
+Para 5 usuários internos um VPS de ~US$6/mês também resolve: `npm run build &&
+npm start`, com um volume persistente em `./uploads` — sem o token do Blob, o
+storage volta para o disco automaticamente.

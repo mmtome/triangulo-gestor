@@ -15,11 +15,21 @@ export const DEFAULT_FILTERS: ViewFilters = {
   tagIds: [],
 };
 
-export function parseFilters(raw: string | null | undefined): ViewFilters {
+/**
+ * Aceita objeto (coluna Json do PostgreSQL) ou string (como ficava no SQLite).
+ * Tolerar os dois evita quebrar linhas gravadas antes da migração.
+ */
+export function parseFilters(raw: unknown): ViewFilters {
   if (!raw) return DEFAULT_FILTERS;
-  try {
-    return { ...DEFAULT_FILTERS, ...(JSON.parse(raw) as ViewFilters) };
-  } catch {
-    return DEFAULT_FILTERS;
+
+  if (typeof raw === "string") {
+    try {
+      return { ...DEFAULT_FILTERS, ...(JSON.parse(raw) as ViewFilters) };
+    } catch {
+      return DEFAULT_FILTERS;
+    }
   }
+
+  if (typeof raw === "object") return { ...DEFAULT_FILTERS, ...(raw as ViewFilters) };
+  return DEFAULT_FILTERS;
 }

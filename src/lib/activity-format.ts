@@ -14,16 +14,26 @@ export type ActivityMeta = Record<string, unknown> & {
   title?: string;
 };
 
-export function parseMeta(raw: string | null | undefined): ActivityMeta {
+/**
+ * Aceita objeto (coluna Json do PostgreSQL) ou string (como ficava no SQLite),
+ * para não quebrar linhas gravadas antes da migração.
+ */
+export function parseMeta(raw: unknown): ActivityMeta {
   if (!raw) return {};
-  try {
-    return JSON.parse(raw) as ActivityMeta;
-  } catch {
-    return {};
+
+  if (typeof raw === "string") {
+    try {
+      return JSON.parse(raw) as ActivityMeta;
+    } catch {
+      return {};
+    }
   }
+
+  if (typeof raw === "object") return raw as ActivityMeta;
+  return {};
 }
 
-export function describeActivity(type: string, rawMeta: string | null | undefined): string {
+export function describeActivity(type: string, rawMeta: unknown): string {
   const m = parseMeta(rawMeta);
   const due = (v?: string | null, hasTime?: boolean) =>
     v ? formatDue(new Date(v), !!hasTime) : "sem data";

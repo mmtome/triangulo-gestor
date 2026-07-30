@@ -1,4 +1,5 @@
 import "server-only";
+import type { Prisma } from "@prisma/client";
 import { db } from "./db";
 import type { ActivityMeta } from "./activity-format";
 import type { NotificationType } from "./enums";
@@ -14,7 +15,7 @@ export async function logActivity(
   meta?: ActivityMeta,
 ) {
   await db.activityLog.create({
-    data: { taskId, actorId, type, meta: meta ? JSON.stringify(meta) : null },
+    data: { taskId, actorId, type, meta: meta ? (meta as Prisma.InputJsonValue) : undefined },
   });
 }
 

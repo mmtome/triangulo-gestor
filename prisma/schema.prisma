@@ -1,21 +1,40 @@
-// Triângulo Gestor — schema de dados
-// Espelha a seção 4 da especificação (especificacao-gestor-interno.md).
-//
-// Provider: SQLite em desenvolvimento (roda sem infraestrutura).
-// Para produção existe prisma/schema.postgres.prisma com o schema idêntico
-// usando enums e Json nativos do PostgreSQL. Ver README > Banco de dados.
-//
-// Diferenças forçadas pelo SQLite (e como são compensadas):
-//   enum  -> String  ... validado por Zod em src/lib/enums.ts
-//   Json  -> String  ... serializado com JSON.stringify (ver ViewPreference/ActivityLog)
+// Triângulo Gestor — schema de dados (PostgreSQL)
+// Espelha a seção 4 da especificação: enums e Json nativos.
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Neon entrega a URL agrupada (pooled). Migrations precisam de conexão direta.
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+enum ProjectRole {
+  OWNER
+  EDITOR
+  VIEWER
+}
+
+enum ProjectStatus {
+  ON_TRACK
+  AT_RISK
+  OFF_TRACK
+}
+
+enum NotificationType {
+  TASK_ASSIGNED
+  COMMENT_ADDED
+  DUE_DATE_CHANGED
+  TASK_COMPLETED
+  MENTIONED
 }
 
 model User {
@@ -25,7 +44,7 @@ model User {
   passwordHash String
   avatarColor  String   @default("#CE2B34")
   avatarUrl    String?
-  role         String   @default("MEMBER") // ADMIN | MEMBER
+  role         Role     @default(MEMBER)
   createdAt    DateTime @default(now())
 
   memberships    ProjectMember[]
@@ -39,17 +58,17 @@ model User {
 }
 
 model Project {
-  id          String    @id @default(cuid())
+  id          String        @id @default(cuid())
   name        String
   description String?
-  icon        String    @default("layout-list")
-  color       String    @default("#CE2B34")
-  status      String    @default("ON_TRACK") // ON_TRACK | AT_RISK | OFF_TRACK
+  icon        String        @default("layout-list")
+  color       String        @default("#CE2B34")
+  status      ProjectStatus @default(ON_TRACK)
   startDate   DateTime?
   endDate     DateTime?
-  archived    Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  archived    Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
   members   ProjectMember[]
   sections  Section[]
@@ -62,9 +81,9 @@ model Project {
 model ProjectMember {
   projectId String
   userId    String
-  role      String   @default("EDITOR") // OWNER | EDITOR | VIEWER
-  favorite  Boolean  @default(false)
-  joinedAt  DateTime @default(now())
+  role      ProjectRole @default(EDITOR)
+  favorite  Boolean     @default(false)
+  joinedAt  DateTime    @default(now())
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -207,8 +226,8 @@ model ActivityLog {
   id        String   @id @default(cuid())
   taskId    String
   actorId   String
-  type      String // created | completed | reopened | due_changed | assigned | tag_added | ...
-  meta      String? // JSON serializado
+  type      String
+  meta      Json?
   createdAt DateTime @default(now())
 
   task  Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
@@ -218,13 +237,13 @@ model ActivityLog {
 }
 
 model Notification {
-  id        String   @id @default(cuid())
+  id        String           @id @default(cuid())
   userId    String
-  type      String // TASK_ASSIGNED | COMMENT_ADDED | DUE_DATE_CHANGED | TASK_COMPLETED | MENTIONED
+  type      NotificationType
   taskId    String?
   actorId   String?
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -235,8 +254,8 @@ model ViewPreference {
   id        String  @id @default(cuid())
   userId    String
   projectId String
-  viewType  String // list | board | calendar
-  filters   String  @default("{}") // JSON serializado
+  viewType  String
+  filters   Json
   sortBy    String?
   groupBy   String?
 
@@ -246,12 +265,11 @@ model ViewPreference {
   @@unique([userId, projectId, viewType])
 }
 
-// Seção 5.14 da spec — template do fluxo de produção
 model SubtaskTemplate {
   id        String  @id @default(cuid())
   projectId String?
   name      String
-  items     String // JSON: [{ title, offsetDays, defaultAssigneeEmail? }]
+  items     Json
 
   project Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }

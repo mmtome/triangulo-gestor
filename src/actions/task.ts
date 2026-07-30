@@ -461,7 +461,10 @@ export async function applySubtaskTemplate(taskId: string, templateId: string) {
     db.subtaskTemplate.findUniqueOrThrow({ where: { id: templateId } }),
   ]);
 
-  const items = JSON.parse(template.items) as TemplateItem[];
+  // Coluna Json no PostgreSQL; tolera string caso venha de um registro antigo.
+  const items = (
+    typeof template.items === "string" ? JSON.parse(template.items) : template.items
+  ) as TemplateItem[];
   const base = task.dueAt ?? new Date();
 
   const emails = items.map((i) => i.defaultAssigneeEmail).filter((e): e is string => !!e);

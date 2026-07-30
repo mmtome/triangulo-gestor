@@ -27,12 +27,12 @@ export default async function SearchPage({
 
   const projectIds = await visibleProjectIds(user);
 
-  // SQLite: `contains` já é case-insensitive para ASCII. Em PostgreSQL, trocar
-  // por `mode: "insensitive"` (ver README > Banco de dados).
+  // PostgreSQL diferencia maiúsculas em LIKE; `mode: "insensitive"` faz a busca
+  // se comportar como o usuário espera ("gargalo" acha "Gargalo").
   const [tasks, projects] = await Promise.all([
     db.task.findMany({
       where: {
-        title: { contains: term },
+        title: { contains: term, mode: "insensitive" },
         OR: [
           { projects: { some: { projectId: { in: projectIds } } } },
           { parent: { projects: { some: { projectId: { in: projectIds } } } } },
@@ -43,7 +43,7 @@ export default async function SearchPage({
       include: TASK_INCLUDE,
     }),
     db.project.findMany({
-      where: { id: { in: projectIds }, name: { contains: term } },
+      where: { id: { in: projectIds }, name: { contains: term, mode: "insensitive" } },
       select: { id: true, name: true, color: true },
       take: 20,
     }),

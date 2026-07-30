@@ -548,26 +548,18 @@ entender onde está o seu lucro".
 
   /* ----------------------- template do fluxo de produção ------------------- */
 
-  const template = await db.subtaskTemplate.create({
-    data: {
-      projectId: project.id,
-      name: "Fluxo de Produção",
-      items: JSON.stringify([
-        { title: "DEMANDAR", offsetDays: -6, defaultAssigneeEmail: matheus.email },
-        { title: "TRÁFEGO INTERNO", offsetDays: -5, defaultAssigneeEmail: socio.email },
-        { title: "EDIÇÃO", offsetDays: -4, defaultAssigneeEmail: social.email },
-        { title: "LEGENDA", offsetDays: -3, defaultAssigneeEmail: matheus.email },
-        { title: "APROVAÇÃO", offsetDays: -1, defaultAssigneeEmail: matheus.email },
-        { title: "PUBLICAÇÃO", offsetDays: 0, defaultAssigneeEmail: social.email },
-      ]),
-    },
-  });
+  const templateItems = [
+    { title: "DEMANDAR", offsetDays: -6, defaultAssigneeEmail: matheus.email },
+    { title: "TRÁFEGO INTERNO", offsetDays: -5, defaultAssigneeEmail: socio.email },
+    { title: "EDIÇÃO", offsetDays: -4, defaultAssigneeEmail: social.email },
+    { title: "LEGENDA", offsetDays: -3, defaultAssigneeEmail: matheus.email },
+    { title: "APROVAÇÃO", offsetDays: -1, defaultAssigneeEmail: matheus.email },
+    { title: "PUBLICAÇÃO", offsetDays: 0, defaultAssigneeEmail: social.email },
+  ];
 
-  const templateItems = JSON.parse(template.items) as {
-    title: string;
-    offsetDays: number;
-    defaultAssigneeEmail: string;
-  }[];
+  await db.subtaskTemplate.create({
+    data: { projectId: project.id, name: "Fluxo de Produção", items: templateItems },
+  });
   const byEmail: Record<string, string> = {
     [matheus.email]: matheus.id,
     [socio.email]: socio.id,
@@ -803,7 +795,7 @@ Zero roteiro extra, dobra de cobertura.`,
         userId: matheus.id,
         projectId: project.id,
         viewType,
-        filters: JSON.stringify({ incomplete: true, assigneeIds: [], tagIds: [] }),
+        filters: { incomplete: true, assigneeIds: [], tagIds: [] },
         sortBy: viewType === "list" ? "manual" : "manual",
         groupBy: "section",
       },
