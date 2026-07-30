@@ -27,6 +27,7 @@ import { toggleComplete, createTask, moveTask } from "@/actions/task";
 import { createSection, renameSection, deleteSection } from "@/actions/section";
 import type { ViewFilters } from "@/lib/view-filters";
 import { compareOrder } from "@/lib/ordering";
+import { attachmentUrl } from "@/lib/attachment-url";
 import type { SerializedTask } from "@/lib/serialize";
 
 type Section = { id: string; name: string; order: string };
@@ -416,7 +417,7 @@ function Card({
       {task.coverKey && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={`/api/uploads/${task.coverKey}`}
+          src={attachmentUrl(task.coverKey)}
           alt=""
           className="h-28 w-full object-cover"
         />

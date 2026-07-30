@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { assertTaskAccess } from "@/lib/permissions";
-
-const UPLOAD_DIR = path.join(process.cwd(), "uploads");
+import { getLocalFile, isRemoteKey } from "@/lib/storage";
 
 export async function GET(
   _req: Request,
@@ -16,7 +13,7 @@ export async function GET(
 
   const { key } = await params;
 
-  // O nome do arquivo vem de randomUUID, mas nunca confie no path da URL.
+  // A chave vem de randomUUID, mas nunca confie no path da URL.
   if (key.includes("/") || key.includes("\\") || key.includes("..")) {
     return NextResponse.json({ error: "chave inválida" }, { status: 400 });
   }
@@ -30,8 +27,13 @@ export async function GET(
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 
+  // Anexo no Vercel Blob: a própria storageKey já é a URL pública.
+  if (isRemoteKey(attachment.storageKey)) {
+    return NextResponse.redirect(attachment.storageKey);
+  }
+
   try {
-    const buf = await readFile(path.join(UPLOAD_DIR, key));
+    const buf = await getLocalFile(key);
     return new NextResponse(new Uint8Array(buf), {
       headers: {
         "Content-Type": attachment.mimeType,

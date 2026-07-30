@@ -1,14 +1,13 @@
 import { NextResponse } from "next/server";
-import { writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { assertTaskAccess } from "@/lib/permissions";
 import { logActivity } from "@/lib/activity";
+import { putFile } from "@/lib/storage";
 
 const MAX_BYTES = 25 * 1024 * 1024; // 25 MB (seção 6 da spec)
-export const UPLOAD_DIR = path.join(process.cwd(), "uploads");
 
 export async function POST(req: Request) {
   const user = await getSession();
@@ -32,22 +31,22 @@ export async function POST(req: Request) {
   }
 
   const ext = path.extname(file.name).slice(0, 12);
-  const storageKey = `${randomUUID()}${ext}`;
+  const mimeType = file.type || "application/octet-stream";
 
-  await mkdir(UPLOAD_DIR, { recursive: true });
-  await writeFile(
-    path.join(UPLOAD_DIR, storageKey),
+  const storageKey = await putFile(
+    `${randomUUID()}${ext}`,
     Buffer.from(await file.arrayBuffer()),
+    mimeType,
   );
 
   const attachment = await db.attachment.create({
     data: {
       taskId,
       fileName: file.name,
-      mimeType: file.type || "application/octet-stream",
+      mimeType,
       sizeBytes: file.size,
       storageKey,
-      isImage: (file.type || "").startsWith("image/"),
+      isImage: mimeType.startsWith("image/"),
     },
   });
 

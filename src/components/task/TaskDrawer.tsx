@@ -24,6 +24,7 @@ import { useAppContext } from "@/components/layout/AppContext";
 import { formatDue, formatDuration, formatRelativeShort, isOverdue } from "@/lib/dates";
 import { describeActivity } from "@/lib/activity-format";
 import { renderRich } from "@/lib/rich";
+import { attachmentUrl } from "@/lib/attachment-url";
 import {
   updateTask,
   toggleComplete,
@@ -695,7 +696,7 @@ function Attachments({ task, onUploaded }: { task: DrawerTask; onUploaded: () =>
         {task.attachments.map((a) => (
           <a
             key={a.id}
-            href={`/api/uploads/${a.storageKey}`}
+            href={attachmentUrl(a.storageKey)}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 rounded-md border border-line px-2 py-1 text-[11px] text-dim transition hover:border-faint hover:text-text"
