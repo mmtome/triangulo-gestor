@@ -1,0 +1,288 @@
+// ============================================================================
+// Schema de PRODUÇÃO — PostgreSQL, exatamente como a seção 4 da especificação.
+//
+// O schema.prisma ativo usa SQLite para o app rodar sem infraestrutura. Este
+// arquivo é o mesmo modelo com os tipos nativos do Postgres: enums de verdade
+// e Json de verdade.
+//
+// Para migrar (ver README > Banco de dados):
+//   1. cp prisma/schema.postgres.prisma prisma/schema.prisma
+//   2. DATABASE_URL=postgresql://...  no .env
+//   3. rm -rf prisma/migrations && npx prisma migrate dev --name init
+//   4. Trocar o parse de JSON.parse/stringify por acesso direto em:
+//        src/lib/view-filters.ts · src/actions/view.ts · src/lib/activity.ts
+//   5. Em src/app/(app)/search/page.tsx trocar `contains` por
+//      `{ contains: term, mode: "insensitive" }` — o Postgres não é
+//      case-insensitive por padrão como o SQLite.
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+enum ProjectRole {
+  OWNER
+  EDITOR
+  VIEWER
+}
+
+enum ProjectStatus {
+  ON_TRACK
+  AT_RISK
+  OFF_TRACK
+}
+
+enum NotificationType {
+  TASK_ASSIGNED
+  COMMENT_ADDED
+  DUE_DATE_CHANGED
+  TASK_COMPLETED
+  MENTIONED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  avatarColor  String   @default("#CE2B34")
+  avatarUrl    String?
+  role         Role     @default(MEMBER)
+  createdAt    DateTime @default(now())
+
+  memberships    ProjectMember[]
+  assignedTasks  Task[]             @relation("TaskAssignee")
+  createdTasks   Task[]             @relation("TaskCreator")
+  comments       Comment[]
+  activities     ActivityLog[]
+  notifications  Notification[]
+  viewPrefs      ViewPreference[]
+  collaborations TaskCollaborator[]
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  icon        String        @default("layout-list")
+  color       String        @default("#CE2B34")
+  status      ProjectStatus @default(ON_TRACK)
+  startDate   DateTime?
+  endDate     DateTime?
+  archived    Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  members   ProjectMember[]
+  sections  Section[]
+  tasks     TaskProject[]
+  tags      Tag[]
+  viewPrefs ViewPreference[]
+  templates SubtaskTemplate[]
+}
+
+model ProjectMember {
+  projectId String
+  userId    String
+  role      ProjectRole @default(EDITOR)
+  favorite  Boolean     @default(false)
+  joinedAt  DateTime    @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, userId])
+}
+
+model Section {
+  id        String   @id @default(cuid())
+  projectId String
+  name      String
+  order     String
+  createdAt DateTime @default(now())
+
+  project Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks   TaskProject[]
+
+  @@index([projectId])
+}
+
+model Task {
+  id               String    @id @default(cuid())
+  title            String
+  description      String?
+  completed        Boolean   @default(false)
+  completedAt      DateTime?
+  dueAt            DateTime?
+  dueHasTime       Boolean   @default(false)
+  startAt          DateTime?
+  estimatedMinutes Int?
+  parentTaskId     String?
+  subtaskOrder     String?
+  assigneeId       String?
+  creatorId        String
+  likes            Int       @default(0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  parent        Task?              @relation("Subtasks", fields: [parentTaskId], references: [id], onDelete: Cascade)
+  subtasks      Task[]             @relation("Subtasks")
+  assignee      User?              @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  creator       User               @relation("TaskCreator", fields: [creatorId], references: [id])
+  projects      TaskProject[]
+  tags          TaskTag[]
+  comments      Comment[]
+  attachments   Attachment[]
+  activities    ActivityLog[]
+  collaborators TaskCollaborator[]
+  blockedBy     TaskDependency[]   @relation("Blocked")
+  blocking      TaskDependency[]   @relation("Blocking")
+
+  @@index([assigneeId, completed, dueAt])
+  @@index([parentTaskId])
+}
+
+model TaskProject {
+  taskId    String
+  projectId String
+  sectionId String?
+  order     String
+
+  task    Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  project Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  section Section? @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+
+  @@id([taskId, projectId])
+  @@index([projectId, sectionId])
+}
+
+model TaskDependency {
+  blockedId  String
+  blockingId String
+
+  blocked  Task @relation("Blocked", fields: [blockedId], references: [id], onDelete: Cascade)
+  blocking Task @relation("Blocking", fields: [blockingId], references: [id], onDelete: Cascade)
+
+  @@id([blockedId, blockingId])
+}
+
+model TaskCollaborator {
+  taskId String
+  userId String
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, userId])
+}
+
+model Tag {
+  id        String  @id @default(cuid())
+  name      String
+  color     String
+  projectId String?
+
+  project Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks   TaskTag[]
+
+  @@unique([name, projectId])
+}
+
+model TaskTag {
+  taskId String
+  tagId  String
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, tagId])
+}
+
+model Comment {
+  id        String    @id @default(cuid())
+  taskId    String
+  authorId  String
+  body      String
+  createdAt DateTime  @default(now())
+  editedAt  DateTime?
+
+  task   Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id])
+
+  @@index([taskId, createdAt])
+}
+
+model Attachment {
+  id         String   @id @default(cuid())
+  taskId     String
+  fileName   String
+  mimeType   String
+  sizeBytes  Int
+  storageKey String
+  isImage    Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  taskId    String
+  actorId   String
+  type      String
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  task  Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  actor User @relation(fields: [actorId], references: [id])
+
+  @@index([taskId, createdAt])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  taskId    String?
+  actorId   String?
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read, createdAt])
+}
+
+model ViewPreference {
+  id        String  @id @default(cuid())
+  userId    String
+  projectId String
+  viewType  String
+  filters   Json
+  sortBy    String?
+  groupBy   String?
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId, viewType])
+}
+
+model SubtaskTemplate {
+  id        String  @id @default(cuid())
+  projectId String?
+  name      String
+  items     Json
+
+  project Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}

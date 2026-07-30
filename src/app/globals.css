@@ -1,26 +1,153 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ============================================================================
+   Triângulo Gestor — design system
+   Cores e tipografia travadas no Manual da Marca v1.0 (BRANDING/assets):
+     Vermelho Triângulo #CE2B34 · Preto #0E0E10 · Grafite #17171A
+     Cinza #9A9AA2 · Branco #FFFFFF · Tipografia Poppins
+   A densidade de interface segue a seção 8 da especificação.
+   ========================================================================== */
+
+@theme {
+  --color-brand: #ce2b34;
+  --color-brand-hover: #e03840;
+  --color-brand-soft: #2a1416;
+
+  --color-ink: #0e0e10;
+  --color-graphite: #17171a;
+  --color-surface: #1c1c20;
+  --color-surface2: #232328;
+  --color-line: #2e2e34;
+
+  --color-text: #f5f4f3;
+  --color-dim: #c3c2c6;
+  --color-muted: #9a9aa2;
+  --color-faint: #6b6b73;
+
+  --color-ok: #5da283;
+  --color-warn: #f1bd6c;
+
+  --font-sans: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-ink);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar discreta ------------------------------------------------------ */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #35353c transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #35353c;
+  border-radius: 6px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #4a4a53;
+  background-clip: content-box;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 1px;
+}
+
+input[type="date"],
+input[type="time"] {
+  color-scheme: dark;
+}
+
+/* Componentes base -------------------------------------------------------- */
+.field {
+  @apply w-full rounded-md border border-line bg-surface px-3 py-2 text-sm text-text
+         outline-none transition placeholder:text-faint;
+}
+.field:focus {
+  @apply border-brand;
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 rounded-md bg-brand px-3.5 py-2
+         text-sm font-semibold text-white transition hover:bg-brand-hover
+         disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+.btn-ghost {
+  @apply inline-flex items-center justify-center gap-2 rounded-md border border-line
+         bg-transparent px-3 py-1.5 text-sm text-dim transition
+         hover:border-faint hover:bg-surface hover:text-text
+         disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+.card {
+  @apply rounded-[10px] border border-line bg-graphite;
+}
+
+/* Conteúdo rich-text (descrições e comentários) --------------------------- */
+.rich p {
+  margin-bottom: 0.5rem;
+}
+.rich p:last-child {
+  margin-bottom: 0;
+}
+.rich ul,
+.rich ol {
+  margin: 0.25rem 0 0.5rem 1.1rem;
+}
+.rich ul {
+  list-style: disc;
+}
+.rich ol {
+  list-style: decimal;
+}
+.rich a {
+  color: var(--color-brand);
+  text-decoration: underline;
+}
+.rich strong {
+  font-weight: 600;
+  color: #fff;
+}
+
+/* Animações --------------------------------------------------------------- */
+@keyframes tg-slide-in {
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+.animate-drawer {
+  animation: tg-slide-in 0.16s ease-out;
+}
+
+@keyframes tg-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.animate-fade {
+  animation: tg-fade 0.12s ease-out;
 }
