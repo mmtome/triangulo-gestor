@@ -137,6 +137,13 @@ comentários próprios. É o que faz o fluxo de produção funcionar.
 **Log de atividade como side-effect das actions** (`src/lib/activity.ts`) — nunca
 por trigger de banco, para o texto sair legível ("alterou o prazo para 7 ago, 18:00").
 
+**Fuso fixo em `America/Sao_Paulo`** (`src/lib/dates.ts`) — nunca o fuso da
+máquina. O mesmo componente renderiza no servidor (Vercel roda em UTC) e hidrata
+no navegador; formatar em horário local faria "18:00" virar "21:00" no HTML do
+servidor, quebrando a hidratação e mostrando a hora errada por um instante.
+Entradas do usuário passam por `composeDue` (`fromZonedTime`), que devolve o
+instante UTC certo em qualquer runtime.
+
 **Invalidação ampla** (`src/lib/revalidate.ts`) — o drawer é global e uma tarefa
 vive em vários projetos; invalidar caminhos específicos deixaria listas paralelas
 defasadas. Para 1–5 usuários internos, revalidar o layout é o certo e o mais
