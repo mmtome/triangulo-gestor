@@ -22,7 +22,6 @@ import {
   format,
   isSameDay,
   isSameMonth,
-  isToday,
   startOfMonth,
   startOfWeek,
 } from "date-fns";
@@ -30,7 +29,14 @@ import { ChevronLeft, ChevronRight, Check, Plus, CalendarOff, ListTree } from "l
 import { ViewToolbar } from "./ViewToolbar";
 import { Popover } from "@/components/ui/Popover";
 import { useAppContext } from "@/components/layout/AppContext";
-import { monthTitle } from "@/lib/dates";
+import {
+  composeDue,
+  fmtTZ,
+  monthTitle,
+  toZonedDate,
+  zonedDayKey,
+  zonedNow,
+} from "@/lib/dates";
 import { updateTask, createTask } from "@/actions/task";
 import type { ViewFilters } from "@/lib/view-filters";
 import type { SerializedTask } from "@/lib/serialize";
@@ -56,13 +62,16 @@ export function CalendarView({
   const params = useSearchParams();
   const { users } = useAppContext();
 
+  // `cursor` é uma data de PAREDE de São Paulo, não um instante: a grade precisa
+  // sair idêntica no servidor (UTC) e no navegador, senão a hidratação quebra.
+  //
   // Abrir sempre no mês corrente mostra uma grade vazia quando o ciclo está
   // planejado para o mês seguinte. Começa no mês que de fato tem trabalho.
   const [cursor, setCursor] = useState(() => {
-    const today = new Date();
+    const today = zonedNow();
     const dated = tasks
       .filter((t) => t.dueAt)
-      .map((t) => new Date(t.dueAt as string))
+      .map((t) => toZonedDate(new Date(t.dueAt as string)))
       .sort((a, b) => a.getTime() - b.getTime());
     if (dated.length === 0) return today;
     if (dated.some((d) => isSameMonth(d, today))) return today;
@@ -105,8 +114,9 @@ export function CalendarView({
 
     for (const t of visible) {
       if (!t.dueAt) continue;
-      const due = new Date(t.dueAt);
-      const startAt = t.startAt ? new Date(t.startAt) : null;
+      // Instantes viram datas de parede antes de virar chave de dia.
+      const due = toZonedDate(new Date(t.dueAt));
+      const startAt = t.startAt ? toZonedDate(new Date(t.startAt)) : null;
 
       if (startAt && !isSameDay(startAt, due) && startAt < due) {
         const range = eachDayOfInterval({ start: startAt, end: due });
@@ -135,10 +145,10 @@ export function CalendarView({
     const dayKey = String(over.id).replace("day:", "");
     if (!/^\d{4}-\d{2}-\d{2}$/.test(dayKey)) return;
 
-    // Mantém a hora original ao mudar o dia (CA da seção 5.9).
-    const [y, m, d] = dayKey.split("-").map(Number);
-    const old = task.dueAt ? new Date(task.dueAt) : null;
-    const next = new Date(y, m - 1, d, old?.getHours() ?? 12, old?.getMinutes() ?? 0, 0, 0);
+    // Mantém a hora original ao mudar o dia (CA da seção 5.9). A hora é lida e
+    // reescrita no fuso de São Paulo para não deslizar com o offset.
+    const oldTime = task.dueAt ? fmtTZ(new Date(task.dueAt), "HH:mm") : null;
+    const next = composeDue(dayKey, oldTime);
 
     start(async () => {
       await updateTask(task.id, { dueAt: next.toISOString(), dueHasTime: task.dueHasTime });
@@ -178,7 +188,7 @@ export function CalendarView({
           <ChevronRight className="h-4 w-4" />
         </button>
         <h2 className="ml-1 text-[15px] font-semibold tracking-tight">{monthTitle(cursor)}</h2>
-        <button className="btn-ghost py-1 text-[12px]" onClick={() => setCursor(new Date())}>
+        <button className="btn-ghost py-1 text-[12px]" onClick={() => setCursor(zonedNow())}>
           Hoje
         </button>
 
@@ -224,17 +234,10 @@ export function CalendarView({
                   onOpen={openTask}
                   onQuickCreate={(title) =>
                     start(async () => {
-                      const d = new Date(
-                        day.getFullYear(),
-                        day.getMonth(),
-                        day.getDate(),
-                        12,
-                        0,
-                      );
                       await createTask({
                         title,
                         projectId,
-                        dueAt: d.toISOString(),
+                        dueAt: composeDue(format(day, "yyyy-MM-dd")).toISOString(),
                         dueHasTime: false,
                       });
                       router.refresh();
@@ -290,9 +293,12 @@ function DayCell({
   onOpen: (id: string) => void;
   onQuickCreate: (title: string) => void;
 }) {
-  const { setNodeRef, isOver } = useDroppable({ id: `day:${format(day, "yyyy-MM-dd")}` });
+  const dayKey = format(day, "yyyy-MM-dd");
+  const { setNodeRef, isOver } = useDroppable({ id: `day:${dayKey}` });
   const [adding, setAdding] = useState(false);
   const outside = !isSameMonth(day, cursor);
+  // "Hoje" pelo calendário de São Paulo, não pelo relógio do servidor.
+  const today = dayKey === zonedDayKey(new Date());
   const MAX = 3;
 
   return (
@@ -305,7 +311,7 @@ function DayCell({
       <div className="mb-1 flex items-center justify-between">
         <span
           className={`inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[11px] ${
-            isToday(day)
+            today
               ? "bg-brand font-semibold text-white"
               : outside
                 ? "text-faint"
@@ -430,7 +436,7 @@ function Pill({
     >
       {task.completed && <Check className="h-2.5 w-2.5 shrink-0" strokeWidth={3} />}
       {due && task.dueHasTime && span !== "mid" && (
-        <span className="shrink-0 font-semibold opacity-80">{format(due, "HH:mm")}</span>
+        <span className="shrink-0 font-semibold opacity-80">{fmtTZ(due, "HH:mm")}</span>
       )}
       <span className={`min-w-0 truncate ${task.completed ? "line-through opacity-60" : ""}`}>
         {task.title}

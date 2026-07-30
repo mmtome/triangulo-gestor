@@ -4,8 +4,7 @@ import { assertProjectAccess } from "@/lib/permissions";
 import { Avatar } from "@/components/ui/Avatar";
 import { ProjectDescription } from "@/components/views/ProjectDescription";
 import { PROJECT_STATUS_LABEL, PROJECT_STATUS_COLOR, type ProjectStatus } from "@/lib/enums";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { fmtTZ } from "@/lib/dates";
 
 export default async function OverviewPage({
   params,
@@ -53,10 +52,10 @@ export default async function OverviewPage({
             <div className="text-[11px] uppercase tracking-wider text-faint">Intervalo</div>
             <div className="mt-1.5 text-[13px] text-dim">
               {project.startDate
-                ? format(project.startDate, "d MMM yyyy", { locale: ptBR })
+                ? fmtTZ(project.startDate, "d MMM yyyy")
                 : "—"}
               {" › "}
-              {project.endDate ? format(project.endDate, "d MMM yyyy", { locale: ptBR }) : "—"}
+              {project.endDate ? fmtTZ(project.endDate, "d MMM yyyy") : "—"}
             </div>
           </div>
 

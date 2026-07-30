@@ -2,8 +2,8 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { assertProjectAccess } from "@/lib/permissions";
 import { DashboardCharts } from "@/components/views/DashboardCharts";
-import { startOfMonth, startOfYear, format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { startOfMonth, startOfYear } from "date-fns";
+import { fmtTZ } from "@/lib/dates";
 
 type Period = "month" | "year" | "all";
 
@@ -61,7 +61,7 @@ export default async function DashboardPage({
   const byMonth = new Map<string, number>();
   for (const t of tasks) {
     if (!t.dueAt) continue;
-    const key = format(t.dueAt, "MMM/yy", { locale: ptBR });
+    const key = fmtTZ(t.dueAt, "MMM/yy");
     byMonth.set(key, (byMonth.get(key) ?? 0) + 1);
   }
 

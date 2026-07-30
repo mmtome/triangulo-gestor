@@ -5,9 +5,7 @@ import { visibleProjectIds } from "@/lib/permissions";
 import { myTasks } from "@/lib/simple-tasks";
 import { SimpleTaskList } from "@/components/task/SimpleTaskList";
 import { Symbol } from "@/components/brand/Logo";
-import { dueBucket } from "@/lib/dates";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { dueBucket, greeting, todayLabel } from "@/lib/dates";
 import { Star } from "lucide-react";
 
 export default async function HomePage() {
@@ -36,16 +34,8 @@ export default async function HomePage() {
     },
   });
 
-  const greeting = (() => {
-    const h = new Date().getHours();
-    if (h < 12) return "Bom dia";
-    if (h < 18) return "Boa tarde";
-    return "Boa noite";
-  })();
-
-  // Só a primeira letra — `capitalize` do CSS transformaria "de julho" em "De Julho".
-  const rawDate = format(new Date(), "EEEE, d 'de' MMMM", { locale: ptBR });
-  const dateLabel = rawDate.charAt(0).toUpperCase() + rawDate.slice(1);
+  // Saudação e data saem do relógio de São Paulo — ver src/lib/dates.ts.
+  const dateLabel = todayLabel();
 
   const stats = [
     { label: "Atrasadas", value: overdue.length, tone: "text-brand" },
@@ -61,7 +51,7 @@ export default async function HomePage() {
         <div>
           <p className="text-[12px] text-faint">{dateLabel}</p>
           <h1 className="text-[24px] font-semibold tracking-tight">
-            {greeting}, {user.name.split(" ")[0]}.
+            {greeting()}, {user.name.split(" ")[0]}.
           </h1>
           <p className="mt-1 text-[13px] text-muted">
             Todo atrito é lucro escapando. Veja o que está travado hoje.
