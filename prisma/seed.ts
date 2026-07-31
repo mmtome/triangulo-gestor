@@ -40,7 +40,7 @@ type Kind = "ALCANCE" | "AUTORIDADE" | "RELACIONAMENTO" | "VENDAS";
 type Post = {
   title: string;
   kind: Kind;
-  format: "REELS" | "CARROSSEL" | "STORIES";
+  format: "REELS" | "CARROSSEL" | "ESTÁTICO" | "STORIES";
   ritual?: string;
   week: number;
   date: Date;
@@ -55,19 +55,25 @@ const POSTS: Post[] = [
   {
     title: "Sua empresa não tem problema de venda. Tem vazamento.",
     kind: "ALCANCE",
-    format: "REELS",
+    format: "ESTÁTICO",
     week: 1,
     date: d(3, 8),
     owner: "estrategia",
-    estimatedMinutes: 90,
+    estimatedMinutes: 45,
     template: true,
-    description: `**Gancho (primeira linha):**
-Você não precisa vender mais pra lucrar mais. Você precisa parar de perder.
+    description: `**SEM GRAVAÇÃO — post de arte única.** A frase carrega o post; não precisa de
+vídeo para funcionar.
 
-**Roteiro (Reels 25s):**
-- Sócio em pé, fala direta para a câmera.
-- Cita as três perdas: processo manual, retrabalho e gargalo.
-- Fecha com o bordão: "Todo atrito é lucro escapando."
+**Arte:** fundo preto, a frase em Poppins bold ocupando o quadro, símbolo da
+Triângulo pequeno no canto. O motivo de "mapa de processo" entra como textura
+sutil ao fundo.
+
+**Texto na arte:**
+"Você não precisa vender mais pra lucrar mais.
+Você precisa parar de perder."
+
+**Legenda:** desenvolve as três perdas — processo manual, retrabalho e gargalo —
+em frases curtas, e fecha com "Todo atrito é lucro escapando".
 
 **CTA:** Marca aqui o sócio que só fala em vender mais.
 
@@ -97,45 +103,53 @@ Você não precisa vender mais pra lucrar mais. Você precisa parar de perder.
 **Métrica-rainha:** salvamentos (meta > 3% do alcance).
 
 **Amarração editorial:** este post arma o caso da FN Cortinas, que fecha o mês
-em 28/08. Aqui a gente ensina a enxergar o gargalo do orçamento; lá mostra ele
-resolvido num cliente real. Não citar a FN ainda — deixar a virada para o dia 28.`,
+em 31/08. Aqui a gente ensina a enxergar o gargalo do orçamento; lá mostra ele
+resolvido num cliente real. Não citar a FN ainda — deixar a virada para o dia 31.`,
   },
   {
     title: "Por que a gente fundou a Triângulo (Creation Story)",
     kind: "RELACIONAMENTO",
-    format: "REELS",
+    format: "CARROSSEL",
     week: 1,
     date: d(7, 8),
     owner: "estrategia",
     estimatedMinutes: 120,
     template: true,
-    description: `**Roteiro (Reels 40s):** rosto dos sócios.
-A cena que se repetia: empresas afogadas em processo manual enquanto o mercado
-vendia site bonito e projeto de IA. O estalo: falta ao digital o que a
-engenharia de produção ensina — mapear, medir, otimizar.
+    description: `**SEM GRAVAÇÃO — carrossel com foto.** A Creation Story pede rosto, mas rosto
+em foto resolve: uma boa foto dos sócios no card 1 e o texto nos seguintes.
+Quando houver estrutura de vídeo, este é o primeiro post a virar Reels.
+
+**Estrutura (6 cards):**
+1. Foto dos sócios + "Por que a gente fundou a Triângulo"
+2-4. A cena que se repetia: empresas afogadas em processo manual enquanto o
+   mercado vendia site bonito e projeto de IA
+5. O estalo: falta ao digital o que a engenharia de produção ensina — mapear,
+   medir, otimizar
+6. CTA
 
 **CTA:** Se isso parece a sua empresa, comenta "MAPA".
 
 **BLOQUEIO:** a Creation Story do documento de branding ainda é um modelo.
-Antes de gravar, fechar os fatos reais — quantos sócios, onde se conheceram e
+Antes de publicar, fechar os fatos reais — quantos sócios, onde se conheceram e
 qual caso deu o estalo.
 
 **Trava de marca:** nunca dizer "somos engenheiros". Sempre "método da
 engenharia de produção".`,
   },
 
-  /* ------------------------------- Semana 2 ------------------------------- */
   {
     title: "Sem Hype #01 — IA não vai salvar a sua empresa",
     kind: "ALCANCE",
-    format: "REELS",
+    format: "CARROSSEL",
     ritual: "SEM HYPE",
-    week: 2,
-    date: d(10, 8),
+    week: 1,
+    date: d(9, 8),
     owner: "estrategia",
-    estimatedMinutes: 90,
+    estimatedMinutes: 120,
     template: true,
-    description: `**Gancho:** Se a sua operação está quebrada, IA só vai te fazer errar mais rápido.
+    description: `**SEM GRAVAÇÃO — carrossel de 6 cards com a virada no card 2.**
+
+**Gancho (card 1):** Se a sua operação está quebrada, IA só vai te fazer errar mais rápido.
 
 **Desenvolvimento:** IA é meio, não milagre. Automatizar um processo ruim é
 multiplicar o problema. A ordem certa: mapear › corrigir › só então automatizar.
@@ -150,7 +164,7 @@ multiplicar o problema. A ordem certa: mapear › corrigir › só então automa
     kind: "AUTORIDADE",
     format: "CARROSSEL",
     week: 2,
-    date: d(12, 8),
+    date: d(11, 8),
     owner: "estrategia",
     estimatedMinutes: 150,
     template: true,
@@ -169,7 +183,7 @@ Encerrar com: "o gargalo manda no ritmo da empresa inteira".
     kind: "VENDAS",
     format: "CARROSSEL",
     week: 2,
-    date: d(14, 8),
+    date: d(13, 8),
     owner: "estrategia",
     estimatedMinutes: 120,
     template: true,
@@ -233,8 +247,8 @@ Fecha com a conta em horas/mês.
     title: "Como a gente trabalha: entrega em ciclos, nada de caixa-preta",
     kind: "RELACIONAMENTO",
     format: "REELS",
-    week: 3,
-    date: d(21, 8),
+    week: 2,
+    date: d(15, 8),
     owner: "social",
     estimatedMinutes: 100,
     template: true,
@@ -245,6 +259,54 @@ real, quadro, reunião. Contrapor à consultoria de PowerPoint.
 
 **Pilar:** ritual "Entrega em ciclos" do Primal Branding.`,
   },
+  {
+    title: "Demonstração: a calculadora de orçamento da FN Cortinas",
+    kind: "VENDAS",
+    format: "CARROSSEL",
+    week: 3,
+    date: d(21, 8),
+    owner: "social",
+    estimatedMinutes: 120,
+    template: true,
+    description: `**Prova antes da oferta.** Este post começa a esquentar o caso que fecha o mês
+em 31/08 — mostra a ferramenta funcionando sem ainda contar a história toda.
+
+**Formato:** carrossel com prints de tela (print resolve; quando houver vídeo,
+vira gravação de tela).
+
+**Sequência:** medida da janela › modelo › tecido › forro › valor fechado ›
+proposta pronta.
+
+**Ponto alto para narrar:** o trilho duplo aparece sozinho quando entra blackout
+ou forro não costurado. O vendedor não escolhe — o sistema sabe a regra.
+
+**Fecho:** "isso não é um app de cortina. É o processo da FN virado software."
+
+**CTA:** Quer o seu processo virando ferramenta? Chama no WhatsApp.`,
+  },
+  {
+    title: "Por que a gente escolheu ficar em Uberaba",
+    kind: "RELACIONAMENTO",
+    format: "ESTÁTICO",
+    week: 3,
+    date: d(23, 8),
+    owner: "estrategia",
+    estimatedMinutes: 45,
+    template: true,
+    description: `**SEM GRAVAÇÃO — foto + legenda.** Post de pertencimento regional, que é o que
+traz lead qualificado na região de atuação.
+
+**Arte:** uma foto real da cidade ou do espaço de trabalho, tratada na paleta da
+marca. Nada de banco de imagens.
+
+**Legenda:** o argumento é de negócio, não de saudade — indústria e comércio do
+Triângulo Mineiro têm operação de verdade travada em processo manual, e estar
+perto de quem decide é vantagem competitiva.
+
+**CTA:** De onde você tá lendo? Conta nos comentários.
+
+**Hashtags locais obrigatórias neste post:** #uberaba #triangulomineiro`,
+  },
 
   /* ------------------------------- Semana 4 ------------------------------- */
   {
@@ -253,7 +315,7 @@ real, quadro, reunião. Contrapor à consultoria de PowerPoint.
     format: "REELS",
     ritual: "SEM HYPE",
     week: 4,
-    date: d(24, 8),
+    date: d(25, 8),
     owner: "estrategia",
     estimatedMinutes: 90,
     template: true,
@@ -271,7 +333,7 @@ real, quadro, reunião. Contrapor à consultoria de PowerPoint.
     kind: "AUTORIDADE",
     format: "CARROSSEL",
     week: 4,
-    date: d(26, 8),
+    date: d(27, 8),
     owner: "estrategia",
     estimatedMinutes: 150,
     template: true,
@@ -284,12 +346,38 @@ E um exemplo numérico fechado.
 **CTA:** Faz essa conta com o seu processo mais chato e me manda o resultado no direct.`,
   },
   {
+    title: "As 12 taxas de maquininha que ninguém repassava",
+    kind: "ALCANCE",
+    format: "CARROSSEL",
+    week: 4,
+    date: d(29, 8),
+    owner: "estrategia",
+    estimatedMinutes: 120,
+    template: true,
+    description: `**Micro-caso da FN, dois dias antes do carrossel grande.** Serve de aquecimento
+para o caso de 31/08 e funciona sozinho como post de alcance.
+
+**Gancho:** Você está pagando a maquininha do seu cliente e nem sabe.
+
+**Desenvolvimento:** cada faixa de parcelamento tem uma taxa diferente — são 12.
+Sem sistema, a loja absorve a diferença sem perceber. A conta certa é
+preço ÷ (1 − taxa): o cliente continua vendo "sem juros" e a margem para de
+vazar.
+
+**Por que é o gancho perfeito da marca:** isso é lucro preso, literalmente, com
+número em cima. Não é opinião — é aritmética.
+
+**CTA:** Salva e confere as suas taxas ainda essa semana.
+
+**Pilar:** Mentalidade de Dono / Lucro.`,
+  },
+  {
     title: "Do Problema ao Lucro #01 — FN Cortinas: o orçamento que virou 3 toques",
     kind: "VENDAS",
     format: "CARROSSEL",
     ritual: "DO PROBLEMA AO LUCRO",
     week: 4,
-    date: d(28, 8),
+    date: d(31, 8),
     owner: "estrategia",
     estimatedMinutes: 240,
     template: true,
@@ -349,14 +437,23 @@ em "estamos medindo — semana que vem tem número".`,
 
 /* --------------------------- Stories da semana --------------------------- */
 
+// Com o feed em dia sim/dia não (ímpares de agosto), os stories ocupam os dias
+// pares — o "dia não" nunca fica mudo.
 const STORIES: { title: string; kind: Kind; date: Date; week: number; description: string }[] = [
-  ...[4, 11, 18, 25].map((day, i) => ({
+  ...[
+    { day: 4, week: 1 },
+    { day: 12, week: 2 },
+    { day: 20, week: 3 },
+    { day: 28, week: 4 },
+  ].map(({ day, week }, i) => ({
     title: `Pergunta de Engenharia #0${i + 1} — enquete nos stories`,
     kind: "RELACIONAMENTO" as Kind,
     date: d(day, 8, 11, 30),
-    week: i + 1,
-    description: `Ritual semanal (terça). Uma provocação curta que faz o dono repensar a
-própria operação, em formato de enquete + caixinha.
+    week,
+    description: `Ritual semanal, sempre num "dia não" do feed. Uma provocação curta que faz o
+dono repensar a própria operação, em formato de enquete + caixinha.
+
+**Sem gravação** — enquete e caixinha são nativas do Instagram.
 
 Sugestões de pergunta:
 - Qual tarefa aí é feita 100% no braço?
@@ -365,14 +462,23 @@ Sugestões de pergunta:
 
 **Métrica-rainha:** respostas de stories (meta > 10/semana).`,
   })),
-  ...[6, 13, 20, 27].map((day, i) => ({
+  ...[
+    { day: 8, week: 1 },
+    { day: 16, week: 2 },
+    { day: 24, week: 3 },
+    { day: 30, week: 4 },
+  ].map(({ day, week }, i) => ({
     title: `Bastidor da semana #0${i + 1} — sprint acontecendo`,
     kind: "RELACIONAMENTO" as Kind,
     date: d(day, 8, 17, 30),
-    week: i + 1,
-    description: `Ritual semanal (quinta). Sequência curta de stories mostrando o trabalho
+    week,
+    description: `Ritual semanal, no outro "dia não". Sequência curta mostrando o trabalho
 acontecendo: tela real, quadro, reunião de sprint, o momento em que o cliente vê
 o dashboard pela primeira vez.
+
+**Enquanto não houver estrutura de gravação:** montar com prints de tela, foto
+do quadro e texto sobre fundo da marca. Story de bastidor funciona com imagem
+parada — o que não pode é o dia ficar mudo.
 
 Fecha sempre com uma pergunta direta para abrir DM.`,
   })),
@@ -419,43 +525,6 @@ const BACKLOG: { title: string; kind: Kind; description?: string }[] = [
 
   // VENDAS
   { title: "O que você recebe no Mapa — desdobrar a entrega item por item", kind: "VENDAS" },
-  {
-    title: "Demonstração de tela: a calculadora de orçamento da FN Cortinas",
-    kind: "VENDAS",
-    description: `Gravação de tela do app da FN. Medida da janela → modelo → tecido → forro →
-valor fechado, com a proposta saindo pronta.
-
-Ponto alto para narrar: o trilho duplo aparece sozinho quando entra blackout ou
-forro não costurado. O vendedor não escolhe — o sistema sabe a regra.
-
-Fechar com: "isso não é um app de cortina. É o processo da FN virado software."`,
-  },
-  {
-    title: "FN Cortinas: por que a calculadora funciona sem internet",
-    kind: "VENDAS",
-    description: `Cortina se mede na casa do cliente, e sinal de celular não é garantido.
-
-O app é offline-first: as ações entram numa fila local e sincronizam sozinhas
-quando a rede volta. Mostrar em vídeo — modo avião, orçamento feito, rede de
-volta, tudo sincronizado.
-
-**Gancho:** "Seu sistema para quando a internet cai? O da FN não."
-
-Pilar: Tecnologia com Propósito — a decisão técnica saiu do processo real, não
-do catálogo de features.`,
-  },
-  {
-    title: "FN Cortinas: as 12 taxas de maquininha que ninguém repassava",
-    kind: "VENDAS",
-    description: `Micro-caso dentro do caso. Cada faixa de parcelamento tem uma taxa diferente —
-são 12. Sem sistema, a loja absorvia a diferença sem perceber.
-
-A conta certa é preço ÷ (1 − taxa): o cliente continua vendo "sem juros" e a
-margem para de vazar.
-
-**Gancho:** "Você está pagando a maquininha do seu cliente e nem sabe."
-É literalmente lucro preso — o bordão da marca com número em cima.`,
-  },
   { title: "Demonstração de tela: dashboard de indicadores em tempo real", kind: "VENDAS" },
   { title: "Para quem a Triângulo NÃO serve — filtro de lead", kind: "VENDAS" },
   {
@@ -559,19 +628,24 @@ async function main() {
       icon: "instagram",
       status: "ON_TRACK",
       startDate: d(3, 8, 0, 0),
-      endDate: d(28, 8, 23, 59),
+      endDate: d(31, 8, 23, 59),
       description: `Ciclo 1 do planejamento editorial — agosto de 2026. @triangulosolutionsbrasil
 
-**A grade fixa da semana**
-- Segunda · ALCANCE (Reels) — "Sem Hype" quinzenal ou opinião de dono
-- Terça · RELACIONAMENTO — "Pergunta de Engenharia" nos stories
-- Quarta · AUTORIDADE (Carrossel) — "Raio-X de Processo"
-- Quinta · RELACIONAMENTO — bastidor de sprint nos stories
-- Sexta · VENDAS (semanas pares) / RELACIONAMENTO (semanas ímpares)
+**Cadência: dia sim, dia não.** Feed nos dias ímpares de agosto (03, 05, 07…
+31) — 15 posts. Stories nos dias pares, para o "dia não" nunca ficar mudo.
 
-**Peso no feed:** Alcance 33% · Autoridade 33% · Relacionamento 17% · Vendas 17%.
+**A âncora deixou de ser o dia da semana e passou a ser o tipo.** Com posts em
+dias alternados o dia da semana varia, então a previsibilidade vem do rodízio
+dos 4 tipos, sempre nesta ordem:
+ALCANCE › AUTORIDADE › RELACIONAMENTO › VENDAS › repete.
+
+**Semana 1 (03 a 09/ago) é 100% sem gravação.** Ainda não há estrutura de vídeo,
+então tudo sai em arte estática e carrossel. O primeiro Reels é 15/08 — é essa a
+data-limite para resolver a gravação.
+
+**Peso no feed:** Alcance 33% · Autoridade 27% · Relacionamento 20% · Vendas 20%.
 Relacionamento parece baixo de propósito: ele vive nos stories, onde
-relacionamento realmente acontece (~60% deles).
+relacionamento realmente acontece.
 
 **O que se vende aqui é O Mapa**, a sessão de diagnóstico — não o software.
 Vender software direto quebra a promessa "nenhuma linha de código antes de
@@ -598,10 +672,10 @@ entender onde está o seu lucro".
 
   const sectionOrders = initialOrders(6);
   const sectionNames = [
-    "Semana 1 · 03–07/ago",
-    "Semana 2 · 10–14/ago",
-    "Semana 3 · 17–21/ago",
-    "Semana 4 · 24–28/ago",
+    "Semana 1 · 03–09/ago",
+    "Semana 2 · 10–16/ago",
+    "Semana 3 · 17–23/ago",
+    "Semana 4 · 24–31/ago",
     "Banco de pautas",
     "Publicado",
   ];
@@ -633,6 +707,7 @@ entender onde está o seu lucro".
   const formatColors: Record<string, string> = {
     REELS: "#8D84E8",
     CARROSSEL: "#4FB3A6",
+    "ESTÁTICO": "#A8C466",
     STORIES: "#F9AAEF",
   };
   const formatTags: Record<string, string> = {};
@@ -653,7 +728,7 @@ entender onde está o seu lucro".
     ritualTags[name] = tag.id;
   }
 
-  console.log("Tags criadas: 11 (4 tipos + 3 formatos + 4 rituais)");
+  console.log("Tags criadas: 12 (4 tipos + 4 formatos + 4 rituais)");
 
   /* ----------------------- template do fluxo de produção ------------------- */
 
