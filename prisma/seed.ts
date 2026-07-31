@@ -462,6 +462,37 @@ Sugestões de pergunta:
 
 **Métrica-rainha:** respostas de stories (meta > 10/semana).`,
   })),
+  // Sem estes, sobravam 6 dias pares sem nada — e o "dia não" ficava mudo, ao
+  // contrário do que o plano promete. Custo de produção ~zero: recicla o post
+  // da véspera, que é prática padrão e ainda dá sobrevida de alcance a ele.
+  ...[
+    { day: 6, week: 1, ecoa: "Raio-X de Processo #01 (05/08)" },
+    { day: 10, week: 2, ecoa: "Sem Hype #01 (09/08)" },
+    { day: 14, week: 2, ecoa: "Nenhuma linha de código — O Mapa (13/08)" },
+    { day: 18, week: 3, ecoa: "Faturar mais nem sempre é lucrar mais (17/08)" },
+    { day: 22, week: 3, ecoa: "Demonstração da calculadora da FN (21/08)" },
+    { day: 26, week: 4, ecoa: "Sem Hype #02 (25/08)" },
+  ].map(({ day, week, ecoa }, i) => ({
+    title: `Eco do Post #0${i + 1} — recicla o post da véspera`,
+    kind: "ALCANCE" as Kind,
+    date: d(day, 8, 12, 0),
+    week,
+    description: `Ritual de baixo custo que fecha o último buraco da agenda: todo "dia não" sem
+outro ritual recebe o eco do post da véspera.
+
+**Ecoa:** ${ecoa}
+
+**Como montar (sem gravação):**
+1. Print de 1 ou 2 cards do post — o gancho e o card da virada
+2. Uma frase de contexto por cima, na arte da marca
+3. Sticker de link ou "arrasta" levando ao post no feed
+
+**Por que vale:** o post do feed pega quem passa pelo perfil; o story pega quem
+já segue e não viu. É alcance extra sem roteiro novo.
+
+**Regra:** se o post da véspera performou mal, não ecoa — troca por enquete
+solta. Repetir conteúdo ruim custa audiência.`,
+  })),
   ...[
     { day: 8, week: 1 },
     { day: 16, week: 2 },
