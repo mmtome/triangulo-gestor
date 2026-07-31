@@ -14,7 +14,7 @@ export default async function LoginPage({
       <section className="relative hidden overflow-hidden bg-graphite p-12 lg:flex lg:flex-col">
         <div className="relative z-10 flex items-center gap-3">
           <Symbol className="h-7 w-7 text-brand" />
-          <span className="text-sm font-semibold tracking-tight">Triângulo Solutions</span>
+          <span className="text-sm font-semibold tracking-tight">Triângulo Solucions</span>
         </div>
 
         <div className="relative z-10 mt-auto max-w-md">
