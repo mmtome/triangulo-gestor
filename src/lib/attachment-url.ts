@@ -1,10 +1,10 @@
 /**
- * URL de exibição de um anexo. No Vercel Blob a `storageKey` já é a URL pública;
- * no disco local ela é só o nome do arquivo e precisa passar pela rota que
- * confere a permissão. Puro — usado por componentes de cliente.
+ * URL de exibição de um anexo.
+ *
+ * Sempre passa pela rota própria — tanto no disco local quanto no Vercel Blob,
+ * cujo store é privado. É a rota que confere se o usuário tem acesso à tarefa
+ * antes de servir o arquivo. Puro: usado por componentes de cliente.
  */
 export function attachmentUrl(storageKey: string): string {
-  return storageKey.startsWith("http://") || storageKey.startsWith("https://")
-    ? storageKey
-    : `/api/uploads/${storageKey}`;
+  return `/api/uploads/${encodeURIComponent(storageKey)}`;
 }

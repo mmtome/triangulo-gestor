@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { assertTaskAccess } from "@/lib/permissions";
-import { getLocalFile, isRemoteKey } from "@/lib/storage";
+import { readAttachment, isBlobKey } from "@/lib/storage";
 
 export async function GET(
   _req: Request,
@@ -11,10 +11,13 @@ export async function GET(
   const user = await getSession();
   if (!user) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
 
-  const { key } = await params;
+  const { key: raw } = await params;
+  const key = decodeURIComponent(raw);
 
-  // A chave vem de randomUUID, mas nunca confie no path da URL.
-  if (key.includes("/") || key.includes("\\") || key.includes("..")) {
+  // A chave é gerada por nós (uuid, ou "blob:" + pathname). Nunca confie no
+  // path da URL: barra e ".." abririam caminho para ler fora do diretório.
+  const suffix = isBlobKey(key) ? key.slice(5) : key;
+  if (suffix.includes("/") || suffix.includes("\\") || suffix.includes("..")) {
     return NextResponse.json({ error: "chave inválida" }, { status: 400 });
   }
 
@@ -27,21 +30,16 @@ export async function GET(
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 
-  // Anexo no Vercel Blob: a própria storageKey já é a URL pública.
-  if (isRemoteKey(attachment.storageKey)) {
-    return NextResponse.redirect(attachment.storageKey);
-  }
+  // O store do Blob é privado: o conteúdo é lido no servidor com o token e
+  // transmitido daqui, em vez de redirecionar para uma URL pública.
+  const file = await readAttachment(key);
+  if (!file) return NextResponse.json({ error: "arquivo indisponível" }, { status: 410 });
 
-  try {
-    const buf = await getLocalFile(key);
-    return new NextResponse(new Uint8Array(buf), {
-      headers: {
-        "Content-Type": attachment.mimeType,
-        "Content-Disposition": `inline; filename="${encodeURIComponent(attachment.fileName)}"`,
-        "Cache-Control": "private, max-age=3600",
-      },
-    });
-  } catch {
-    return NextResponse.json({ error: "arquivo removido do disco" }, { status: 410 });
-  }
+  return new NextResponse(file.body as BodyInit, {
+    headers: {
+      "Content-Type": file.contentType ?? attachment.mimeType,
+      "Content-Disposition": `inline; filename="${encodeURIComponent(attachment.fileName)}"`,
+      "Cache-Control": "private, max-age=3600",
+    },
+  });
 }
