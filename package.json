@@ -13,7 +13,8 @@
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
     "docs:anexar": "tsx scripts/anexar-documentos.ts",
-    "setup": "prisma migrate deploy && prisma generate && tsx prisma/seed.ts"
+    "setup": "prisma migrate deploy && prisma generate && tsx prisma/seed.ts",
+    "arte:anexar": "tsx scripts/anexar-arte.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
