@@ -94,7 +94,11 @@ Você não precisa vender mais pra lucrar mais. Você precisa parar de perder.
 **CTA:** Salva. Semana que vem tem Raio-X novo.
 
 **Pilar:** Diagnóstico & Processos.
-**Métrica-rainha:** salvamentos (meta > 3% do alcance).`,
+**Métrica-rainha:** salvamentos (meta > 3% do alcance).
+
+**Amarração editorial:** este post arma o caso da FN Cortinas, que fecha o mês
+em 28/08. Aqui a gente ensina a enxergar o gargalo do orçamento; lá mostra ele
+resolvido num cliente real. Não citar a FN ainda — deixar a virada para o dia 28.`,
   },
   {
     title: "Por que a gente fundou a Triângulo (Creation Story)",
@@ -178,7 +182,15 @@ serve · para quem NÃO serve · CTA.
 **CTA:** Solicitar diagnóstico — link na bio ou chama no WhatsApp.
 
 **Regra de posicionamento:** o que se vende no Instagram é O Mapa, não o
-software. Vender software direto quebra a promessa da marca.`,
+software. Vender software direto quebra a promessa da marca.
+
+**Prova disponível:** se precisar de um exemplo concreto no card 5, usar a FN
+Cortinas — o app dela nasceu de um mapeamento do processo de orçamento, não de
+um briefing de "quero um sistema". É exatamente a promessa cumprida.
+
+**Coletar o "antes" na sessão.** A FN ensinou isso do jeito difícil: sem medir
+o tempo e o erro no dia do Mapa, o caso fica sem número depois. Incluir a
+medição no roteiro da sessão.`,
   },
 
   /* ------------------------------- Semana 3 ------------------------------- */
@@ -272,7 +284,7 @@ E um exemplo numérico fechado.
 **CTA:** Faz essa conta com o seu processo mais chato e me manda o resultado no direct.`,
   },
   {
-    title: "Do Problema ao Lucro #01 — caso real (carro-chefe do mês)",
+    title: "Do Problema ao Lucro #01 — FN Cortinas: o orçamento que virou 3 toques",
     kind: "VENDAS",
     format: "CARROSSEL",
     ritual: "DO PROBLEMA AO LUCRO",
@@ -281,20 +293,57 @@ E um exemplo numérico fechado.
     owner: "estrategia",
     estimatedMinutes: 240,
     template: true,
-    description: `**Estrutura fixa do ritual (9 cards):**
-o problema › o mapa que fizemos › onde estava o vazamento › a solução
-construída › **Antes & Depois em números** (tempo, custo, capacidade, receita) ›
-a tese de lucro cumprida.
+    description: `**CASO REAL — FN Cortinas.** É o par prático do Raio-X #01 (05/08): lá a
+gente ensina a enxergar o gargalo do orçamento; aqui mostra ele resolvido.
+
+**Estrutura fixa do ritual (9 cards):**
+
+**1. O problema.** Orçar uma cortina não é medir a janela e multiplicar por um
+preço. Cada peça depende de uma cadeia de decisões encadeadas — e cada uma
+delas pode custar a margem.
+
+**2. O mapa que fizemos.** Desenhamos o processo real de orçamento da FN, do
+atendimento ao fechamento. O que era "experiência do vendedor" virou regra
+escrita:
+- 1m de cortina pronta consome 3m de tecido (franzido 3×), 3m de entretela,
+  22 rodízios e 1m de trilho
+- mão de obra = R$16 × metros de tecido
+- trilho duplo ou simples NÃO é escolha: é consequência (duplo quando há
+  blackout ou forro não costurado)
+- o corte do rolo muda a metragem — largura útil de 2,85m decide o caso, com
+  bainha de 0,35m (0,30m no blackout)
+- forro separado ×1,5 · blackout ×1,2
+- instalação R$170 sem forro / R$220 com forro separado
+- adicionais: +R$100 acima de 4,5m de altura (andaime), +R$100 motorizada
+
+**3. Onde estava o vazamento.** Toda essa cadeia rodava na cabeça de quem
+vendia, com papel e calculadora. Três consequências: orçamento demorado, erro
+de metragem que come margem no silêncio, e o parcelado — 12 faixas de taxa de
+maquininha — sendo absorvido pela loja em vez de repassado.
+
+**4. A solução construída.** App próprio, offline-first:
+- **Calculadora** com o motor de precificação — funções puras, a tela nunca
+  calcula, então a regra é a mesma para todo mundo que orça
+- **Proposta** gerada na hora, pronta para o cliente
+- **Estoque** e **Registros** dos pedidos
+- **Ajustes**: lucro, taxas, preços de tecido e fatores editáveis pelo dono —
+  sem depender da gente para mudar um preço
+- **Funciona sem internet.** Cortina se mede na casa do cliente, e sinal de
+  celular não é garantido: as ações entram numa fila local e sincronizam
+  sozinhas quando a rede volta
+
+**5. Antes & Depois em números.** ⚠️ PREENCHER COM MEDIÇÃO REAL antes de
+publicar: tempo médio do orçamento antes × depois, nº de orçamentos por dia,
+erro de metragem por pedido, margem média. Já temos o "antes" documentado (os
+pedidos manuais em papel) — falta cronometrar o "depois".
+
+**6. A tese de lucro cumprida.** Escrever a partir dos números do card 5.
 
 **CTA:** Quer o mesmo raio-X na sua operação? Chama no WhatsApp.
 
-**BLOQUEIO:** depende de um caso com número fechado. Se não houver até 28/08,
-usar um dos substitutos, nesta ordem:
-1. Caso em andamento com número parcial e cliente anonimizado
-2. Demonstração de ferramenta própria rodando (calculadora, dashboard)
-3. Oferta do Mapa com vagas limitadas no mês
-
-Número inventado destrói a obsessão por ROI que sustenta a marca.`,
+**Regra que não se quebra:** número inventado destrói a obsessão por ROI que
+sustenta a marca. Sem medição, publicar só até o card 4 e transformar o 5 e o 6
+em "estamos medindo — semana que vem tem número".`,
   },
 ];
 
@@ -331,7 +380,7 @@ Fecha sempre com uma pergunta direta para abrir DM.`,
 
 /* ----------------------------- Banco de pautas ---------------------------- */
 
-const BACKLOG: { title: string; kind: Kind }[] = [
+const BACKLOG: { title: string; kind: Kind; description?: string }[] = [
   // ALCANCE
   { title: "Seu maior concorrente não está lá fora. É a sua operação travada.", kind: "ALCANCE" },
   { title: "Sem Hype: Não, você não precisa de um app.", kind: "ALCANCE" },
@@ -370,15 +419,75 @@ const BACKLOG: { title: string; kind: Kind }[] = [
 
   // VENDAS
   { title: "O que você recebe no Mapa — desdobrar a entrega item por item", kind: "VENDAS" },
-  { title: "Demonstração de tela: calculadora comercial de precificação", kind: "VENDAS" },
+  {
+    title: "Demonstração de tela: a calculadora de orçamento da FN Cortinas",
+    kind: "VENDAS",
+    description: `Gravação de tela do app da FN. Medida da janela → modelo → tecido → forro →
+valor fechado, com a proposta saindo pronta.
+
+Ponto alto para narrar: o trilho duplo aparece sozinho quando entra blackout ou
+forro não costurado. O vendedor não escolhe — o sistema sabe a regra.
+
+Fechar com: "isso não é um app de cortina. É o processo da FN virado software."`,
+  },
+  {
+    title: "FN Cortinas: por que a calculadora funciona sem internet",
+    kind: "VENDAS",
+    description: `Cortina se mede na casa do cliente, e sinal de celular não é garantido.
+
+O app é offline-first: as ações entram numa fila local e sincronizam sozinhas
+quando a rede volta. Mostrar em vídeo — modo avião, orçamento feito, rede de
+volta, tudo sincronizado.
+
+**Gancho:** "Seu sistema para quando a internet cai? O da FN não."
+
+Pilar: Tecnologia com Propósito — a decisão técnica saiu do processo real, não
+do catálogo de features.`,
+  },
+  {
+    title: "FN Cortinas: as 12 taxas de maquininha que ninguém repassava",
+    kind: "VENDAS",
+    description: `Micro-caso dentro do caso. Cada faixa de parcelamento tem uma taxa diferente —
+são 12. Sem sistema, a loja absorvia a diferença sem perceber.
+
+A conta certa é preço ÷ (1 − taxa): o cliente continua vendo "sem juros" e a
+margem para de vazar.
+
+**Gancho:** "Você está pagando a maquininha do seu cliente e nem sabe."
+É literalmente lucro preso — o bordão da marca com número em cima.`,
+  },
   { title: "Demonstração de tela: dashboard de indicadores em tempo real", kind: "VENDAS" },
   { title: "Para quem a Triângulo NÃO serve — filtro de lead", kind: "VENDAS" },
-  { title: "Depoimento em vídeo do cliente", kind: "VENDAS" },
-  { title: "Automação de X: de 40 cliques para 1 — antes/depois", kind: "VENDAS" },
+  {
+    title: "Depoimento em vídeo do cliente (FN Cortinas)",
+    kind: "VENDAS",
+    description: `Depoimento vale mais que qualquer carrossel. Roteiro de 3 perguntas:
+1. Como era orçar antes?
+2. O que mudou no dia a dia?
+3. O que você diria pra quem está na mesma situação?
+
+Combinar a gravação junto com a coleta dos números do Antes & Depois.`,
+  },
   { title: "Quanto custa um projeto? Falar de faixa e de critério", kind: "VENDAS" },
   { title: "Vagas do mês para diagnóstico (escassez real)", kind: "VENDAS" },
-  { title: "MicroSaaS sob medida: quando faz sentido pra empresa do seu tamanho", kind: "VENDAS" },
-  { title: "Do Problema ao Lucro #02 — próximo caso real", kind: "VENDAS" },
+  {
+    title: "MicroSaaS sob medida: quando faz sentido pra empresa do seu tamanho",
+    kind: "VENDAS",
+    description: `Usar a FN como exemplo concreto: sistema pronto de mercado não conhece a regra
+de franzido 3×, nem infere trilho duplo, nem sabe o corte do rolo da loja.
+
+Critério para o dono decidir: se a regra que define seu preço é sua e só sua,
+sistema genérico não cabe.`,
+  },
+  {
+    title: "Do Problema ao Lucro #02 — próximo caso real",
+    kind: "VENDAS",
+    description: `O #01 é a FN Cortinas. Este é o próximo — definir qual cliente entra e começar
+a coletar o "antes" já no diagnóstico, não depois.
+
+Lição que a FN deixou: sem medir o antes na hora do Mapa, o carrossel de caso
+fica sem os cards 5 e 6. Medir passa a ser parte do rito de entrada.`,
+  },
 ];
 
 /* -------------------------------------------------------------------------- */
@@ -683,8 +792,9 @@ entender onde está o seu lucro".
         title: item.title,
         creatorId: matheus.id,
         description:
+          item.description ??
           "Pauta do banco do ciclo 1. Ao puxar para uma semana, definir formato, " +
-          "prazo com hora e aplicar o template Fluxo de Produção.",
+            "prazo com hora e aplicar o template Fluxo de Produção.",
         projects: {
           create: {
             projectId: project.id,
