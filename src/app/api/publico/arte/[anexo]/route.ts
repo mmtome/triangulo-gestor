@@ -59,8 +59,11 @@ export async function GET(
     headers: {
       "Content-Type": "image/jpeg",
       "Content-Length": String(jpeg.length),
-      // Curto: se a arte for corrigida, a próxima tentativa pega a nova.
-      "Cache-Control": "public, max-age=300",
+      /* Sem cache, e isso é a trava principal: com "public, max-age", o CDN
+         continuava servindo a imagem depois de a aprovação ser desmarcada — a
+         porta não fechava. A Meta busca a imagem uma vez por publicação, então
+         cache aqui não economiza nada e custa a revogação. */
+      "Cache-Control": "no-store, private",
     },
   });
 }
