@@ -13,7 +13,7 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "Triângulo Gestor",
   description:
-    "Gestão da produção de conteúdo da Triângulo Solucions. Mapear. Resolver. Lucrar.",
+    "Gestão da produção de conteúdo da Triângulo Solutions. Mapear. Resolver. Lucrar.",
   icons: { icon: "/brand/simbolo-vermelho.svg" },
 };
 

@@ -38,7 +38,7 @@ export function NewProjectModal({ open, onClose }: { open: boolean; onClose: () 
         className="field"
         value={name}
         autoFocus
-        placeholder="Ex.: Instagram · Triângulo Solucions"
+        placeholder="Ex.: Instagram · Triângulo Solutions"
         onChange={(e) => setName(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && submit()}
       />

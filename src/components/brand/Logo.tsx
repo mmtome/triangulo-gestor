@@ -1,4 +1,4 @@
-// Símbolo oficial da Triângulo Solucions (assets/SIMBOLO.svg do Manual da Marca).
+// Símbolo oficial da Triângulo Solutions (assets/SIMBOLO.svg do Manual da Marca).
 // Inline em vez de <img> para herdar a cor por currentColor e evitar request extra.
 
 export function Symbol({ className = "h-6 w-6" }: { className?: string }) {

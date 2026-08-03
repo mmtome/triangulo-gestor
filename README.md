@@ -1,6 +1,6 @@
 # Triângulo Gestor
 
-Sistema interno de gestão da produção de conteúdo da **Triângulo Solucions**.
+Sistema interno de gestão da produção de conteúdo da **Triângulo Solutions**.
 Implementa a especificação de [`../especificacao-gestor-interno.md`](../especificacao-gestor-interno.md)
 e nasce já carregado com o **Planejamento de Conteúdo do Instagram — ciclo 1 (agosto/2026)**.
 
