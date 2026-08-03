@@ -122,6 +122,19 @@ model Task {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
+  /* --- publicação automática no Instagram ------------------------------- */
+  /* O check de aprovação é a única ação manual: a partir dele, o post sobe
+     sozinho quando `dueAt` chegar. Ver src/lib/publicador.ts. */
+  aprovadoParaPublicar Boolean   @default(false)
+  aprovadoEm           DateTime?
+  aprovadoPorId        String?
+  legenda              String?
+  publicacaoStatus     String?
+  publicadoEm          DateTime?
+  publicacaoErro       String?
+  instagramMediaId     String?
+  instagramPermalink   String?
+
   parent        Task?              @relation("Subtasks", fields: [parentTaskId], references: [id], onDelete: Cascade)
   subtasks      Task[]             @relation("Subtasks")
   assignee      User?              @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
@@ -137,6 +150,8 @@ model Task {
 
   @@index([assigneeId, completed, dueAt])
   @@index([parentTaskId])
+  /* O cron varre exatamente por isto: aprovado, ainda não publicado, vencido. */
+  @@index([aprovadoParaPublicar, publicadoEm, dueAt])
 }
 
 model TaskProject {

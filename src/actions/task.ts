@@ -495,3 +495,68 @@ export async function applySubtaskTemplate(taskId: string, templateId: string) {
   refreshAll();
   return { created: items.length };
 }
+
+/* -------------------------------------------------------------------------- */
+/* Aprovação para publicação automática                                        */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Marca (ou desmarca) a tarefa como aprovada para virar post.
+ *
+ * A partir daqui não há mais ação manual: o cron diário publica no dia da
+ * `dueAt`. Desmarcar antes disso cancela — e também fecha o acesso público à
+ * arte, porque /api/publico/arte confere esta mesma flag.
+ */
+export async function setAprovacaoPublicacao(taskId: string, aprovado: boolean) {
+  const user = await requireUser();
+  await assertTaskAccess(user, taskId, true);
+
+  const antes = await db.task.findUniqueOrThrow({
+    where: { id: taskId },
+    select: { aprovadoParaPublicar: true, publicadoEm: true },
+  });
+
+  if (antes.publicadoEm) {
+    return { ok: false, erro: "Este post já foi publicado." };
+  }
+  if (antes.aprovadoParaPublicar === aprovado) return { ok: true };
+
+  await db.task.update({
+    where: { id: taskId },
+    data: {
+      aprovadoParaPublicar: aprovado,
+      aprovadoEm: aprovado ? new Date() : null,
+      aprovadoPorId: aprovado ? user.id : null,
+      // Reaprovar depois de um erro tem que dar nova chance ao cron.
+      publicacaoStatus: aprovado ? null : null,
+      publicacaoErro: null,
+    },
+  });
+
+  await logActivity(
+    taskId,
+    user.id,
+    aprovado ? "aprovado_para_publicar" : "aprovacao_removida",
+  );
+  await notify({
+    userIds: await taskFollowers(taskId),
+    actorId: user.id,
+    type: "TASK_COMPLETED",
+    taskId,
+  });
+
+  refreshAll();
+  return { ok: true };
+}
+
+/** Legenda do post — é ela que vai como caption no Instagram. */
+export async function setLegenda(taskId: string, legenda: string) {
+  const user = await requireUser();
+  await assertTaskAccess(user, taskId, true);
+  await db.task.update({
+    where: { id: taskId },
+    data: { legenda: legenda.trim() ? legenda.slice(0, 2200) : null },
+  });
+  refreshAll();
+  return { ok: true };
+}

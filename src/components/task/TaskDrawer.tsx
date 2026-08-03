@@ -16,6 +16,8 @@ import {
   Ban,
   Paperclip,
   Wand2,
+  Send,
+  AlertTriangle,
 } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { CheckCircle } from "./CheckCircle";
@@ -34,6 +36,7 @@ import {
   toggleLike,
   applySubtaskTemplate,
   removeDependency,
+  setAprovacaoPublicacao,
 } from "@/actions/task";
 import { createTag } from "@/actions/tag";
 import { addComment } from "@/actions/comment";
@@ -76,6 +79,11 @@ type DrawerTask = {
   comments: { id: string; body: string; createdAt: string; author: Person }[];
   activities: { id: string; type: string; meta: unknown; createdAt: string; actor: Person }[];
   attachments: { id: string; fileName: string; isImage: boolean; storageKey: string }[];
+  aprovadoParaPublicar: boolean;
+  publicadoEm: string | null;
+  publicacaoStatus: string | null;
+  publicacaoErro: string | null;
+  instagramPermalink: string | null;
 };
 
 type Payload = {
@@ -391,6 +399,90 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   );
 }
 
+/* -------------------------------------------------------------------------- */
+/* Aprovação para publicar                                                     */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * O check que libera a publicação automática.
+ *
+ * Só aparece quando faz sentido: a tarefa precisa ter data e pelo menos uma
+ * imagem anexada — sem os dois não há o que publicar nem quando. Depois de
+ * publicado, vira um selo com o link do post.
+ */
+function AprovacaoDePublicacao({
+  task,
+  mutate,
+}: {
+  task: DrawerTask;
+  mutate: (fn: () => Promise<unknown>) => void;
+}) {
+  const temArte = task.attachments.some((a) => a.isImage);
+  if (!temArte && !task.aprovadoParaPublicar && !task.publicadoEm) return null;
+
+  if (task.publicadoEm) {
+    return (
+      <Row label="Instagram">
+        <div className="flex items-center gap-2 py-1 text-[12px] text-dim">
+          <Send className="h-3.5 w-3.5 text-[#CE2B34]" />
+          Publicado em {formatRelativeShort(new Date(task.publicadoEm))}
+          {task.instagramPermalink && (
+            <a
+              href={task.instagramPermalink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 hover:text-text"
+            >
+              ver post
+            </a>
+          )}
+        </div>
+      </Row>
+    );
+  }
+
+  const semData = !task.dueAt;
+  const falhou = task.publicacaoErro && task.publicacaoStatus !== "publicado";
+
+  return (
+    <Row label="Instagram">
+      <div className="py-1">
+        <label className="inline-flex cursor-pointer items-center gap-2 text-[12px] text-dim">
+          <input
+            type="checkbox"
+            checked={task.aprovadoParaPublicar}
+            disabled={semData || !temArte}
+            onChange={(e) =>
+              mutate(() => setAprovacaoPublicacao(task.id, e.target.checked))
+            }
+            className="h-3.5 w-3.5 accent-[#CE2B34]"
+          />
+          Aprovado para publicar
+        </label>
+
+        <p className="mt-1 text-[11px] text-faint">
+          {semData
+            ? "Defina a data de conclusão: é ela que marca o dia da publicação."
+            : !temArte
+              ? "Anexe a arte do post para poder aprovar."
+              : task.aprovadoParaPublicar
+                ? `Sobe sozinho na data marcada, com ${task.attachments.filter((a) => a.isImage).length} imagem(ns).`
+                : "Ao marcar, o post sobe sozinho na data marcada."}
+        </p>
+
+        {falhou && (
+          <p className="mt-1.5 flex items-start gap-1.5 text-[11px] text-[#e0a2a6]">
+            <AlertTriangle className="mt-px h-3 w-3 shrink-0" />
+            {task.publicacaoStatus === "sem_credencial"
+              ? "Falta conectar a conta do Instagram (credencial de publicação)."
+              : task.publicacaoErro}
+          </p>
+        )}
+      </div>
+    </Row>
+  );
+}
+
 function FieldGrid({
   task,
   data,
@@ -427,6 +519,8 @@ function FieldGrid({
           }
         />
       </Row>
+
+      <AprovacaoDePublicacao task={task} mutate={mutate} />
 
       <Row label="Tags">
         <TagPicker
