@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { publicarTarefa, credencialConfigurada } from "@/lib/publicador";
+import {
+  publicarTarefa,
+  credencialConfigurada,
+  urlPublicaDaArte,
+} from "@/lib/publicador";
 
 /* ============================================================================
    Cron de publicação.
@@ -32,6 +36,39 @@ export async function GET(req: Request) {
   }
 
   const agora = new Date();
+
+  /* ?dry=1 mostra o que sairia, sem enviar nada. Serve para conferir a fila e
+     as URLs públicas das artes sem gastar uma publicação de verdade. */
+  const simulacao = new URL(req.url).searchParams.get("dry") === "1";
+  if (simulacao) {
+    const fila = await db.task.findMany({
+      where: { aprovadoParaPublicar: true, publicadoEm: null },
+      orderBy: { dueAt: "asc" },
+      select: {
+        id: true,
+        title: true,
+        dueAt: true,
+        attachments: {
+          where: { isImage: true },
+          orderBy: { createdAt: "asc" },
+          select: { id: true, fileName: true },
+        },
+      },
+    });
+    return NextResponse.json({
+      simulacao: true,
+      agora: agora.toISOString(),
+      credencial: credencialConfigurada() ? "ok" : "ausente",
+      fila: fila.map((t) => ({
+        titulo: t.title,
+        data: t.dueAt?.toISOString() ?? null,
+        vencida: !!t.dueAt && t.dueAt <= agora,
+        cards: t.attachments.length,
+        imagens: t.attachments.map((a) => urlPublicaDaArte(a.id)),
+      })),
+    });
+  }
+
   const pendentes = await db.task.findMany({
     where: {
       aprovadoParaPublicar: true,
