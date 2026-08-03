@@ -37,6 +37,7 @@ import {
   applySubtaskTemplate,
   removeDependency,
   setAprovacaoPublicacao,
+  setLegenda,
 } from "@/actions/task";
 import { createTag } from "@/actions/tag";
 import { addComment } from "@/actions/comment";
@@ -79,6 +80,7 @@ type DrawerTask = {
   comments: { id: string; body: string; createdAt: string; author: Person }[];
   activities: { id: string; type: string; meta: unknown; createdAt: string; actor: Person }[];
   attachments: { id: string; fileName: string; isImage: boolean; storageKey: string }[];
+  legenda: string | null;
   aprovadoParaPublicar: boolean;
   publicadoEm: string | null;
   publicacaoStatus: string | null;
@@ -483,6 +485,79 @@ function AprovacaoDePublicacao({
   );
 }
 
+/**
+ * A legenda que vai como texto do post. Fica junto do check de aprovação de
+ * propósito: aprovar sem ler o que vai junto da imagem seria aprovar metade.
+ *
+ * Grava ao sair do campo, e não a cada tecla — senão seria uma escrita no
+ * banco por letra digitada.
+ */
+function LegendaDoPost({
+  task,
+  mutate,
+}: {
+  task: DrawerTask;
+  mutate: (fn: () => Promise<unknown>) => void;
+}) {
+  const [texto, setTexto] = useState(task.legenda ?? "");
+  const [aberto, setAberto] = useState(false);
+
+  useEffect(() => setTexto(task.legenda ?? ""), [task.id, task.legenda]);
+
+  const temArte = task.attachments.some((a) => a.isImage);
+  if (!temArte && !task.legenda) return null;
+
+  const limite = 2200;
+
+  return (
+    <Row label="Legenda do post">
+      <div className="py-1">
+        {!aberto && (
+          <button
+            onClick={() => setAberto(true)}
+            className="w-full text-left text-[12px] leading-relaxed text-dim transition hover:text-text"
+          >
+            {texto ? (
+              <>
+                <span className="line-clamp-3 whitespace-pre-wrap">{texto}</span>
+                <span className="mt-1 block text-[11px] text-faint">
+                  {texto.length}/{limite} · clique para editar
+                </span>
+              </>
+            ) : (
+              <span className="text-[12px] text-faint">
+                Escrever a legenda que vai junto com a arte…
+              </span>
+            )}
+          </button>
+        )}
+
+        {aberto && (
+          <>
+            <textarea
+              autoFocus
+              value={texto}
+              maxLength={limite}
+              onChange={(e) => setTexto(e.target.value)}
+              onBlur={() => {
+                setAberto(false);
+                if ((task.legenda ?? "") !== texto) {
+                  mutate(() => setLegenda(task.id, texto));
+                }
+              }}
+              rows={12}
+              className="w-full resize-y rounded-md border border-line bg-surface px-3 py-2 text-[12px] leading-relaxed text-text outline-none focus:border-faint"
+            />
+            <div className="mt-1 text-[11px] text-faint">
+              {texto.length}/{limite} caracteres · clique fora para salvar
+            </div>
+          </>
+        )}
+      </div>
+    </Row>
+  );
+}
+
 function FieldGrid({
   task,
   data,
@@ -521,6 +596,7 @@ function FieldGrid({
       </Row>
 
       <AprovacaoDePublicacao task={task} mutate={mutate} />
+      <LegendaDoPost task={task} mutate={mutate} />
 
       <Row label="Tags">
         <TagPicker
